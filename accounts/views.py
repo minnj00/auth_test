@@ -18,14 +18,18 @@ def signup(request):
         'form':form,
     }
 
-    return render(request, 'signup.html', context)
+    return render(request, 'account_form.html', context)
 
 def login(request):
+    if request.user.is_authenticated:
+        return redirect('articles:index')
+    
     if request.method=='POST':
         form = CustomAuthenticationForm(request, request.POST)
         if form.is_valid():
             auth_login(request, form.get_user())
-            return redirect('accounts:login')
+            next_url = request.GET.get('next')
+            return redirect(next_url or 'articles:index')
 
     else:
         form = CustomAuthenticationForm()
@@ -34,7 +38,7 @@ def login(request):
     context = {
         'form': form,
     }
-    return render(request, 'login.html', context)
+    return render(request, 'account_form.html', context)
 
 def logout(request):
     auth_logout(request)
